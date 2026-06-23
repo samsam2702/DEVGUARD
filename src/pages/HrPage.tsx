@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { MessageSquare, Mic, ScanFace, ClipboardList, Activity } from "lucide-react"
+import { MessageSquare, Mic, ClipboardList, Activity } from "lucide-react"
 import { HrLayout } from "@/layouts/HrLayout"
 import { StatusCard } from "@/components/hr/StatusCard"
 import { RiskCard } from "@/components/hr/RiskCard"
@@ -8,6 +8,8 @@ import { SignalBreakdown } from "@/components/hr/SignalBreakdown"
 import { SummaryCard } from "@/components/hr/SummaryCard"
 import { SystemStatusCard } from "@/components/hr/SystemStatusCard"
 import { AnalysisCard } from "@/components/hr/AnalysisCard"
+import { FerDashboardCard } from "@/components/hr/FerDashboardCard"
+import { VoiceDashboardCard } from "@/components/hr/VoiceDashboardCard"
 import { EmployeeListPanel } from "@/components/hr/EmployeeListPanel"
 import type { EmployeeSummary, RiskLevel } from "@/lib/types"
 
@@ -59,11 +61,11 @@ export function HrPage() {
 
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
         <AnalysisCard title="Chat Analysis" description="Sentiment derived from text conversations" icon={MessageSquare} />
-        <AnalysisCard title="Voice Analysis" description="Emotion signals from voice input" icon={Mic} />
+        <VoiceDashboardCard />
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <AnalysisCard title="Facial FER Analysis" description="Facial expression recognition signals" icon={ScanFace} />
+        <FerDashboardCard />
         <SummaryCard
           title="Monitoring Summary"
           description="Current monitoring coverage and cadence"
