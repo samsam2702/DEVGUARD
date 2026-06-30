@@ -56,7 +56,7 @@ app.post("/api/employee/signup", async (req, res) => {
     const hashed = await bcrypt.hash(password, 10)
     await db.execute({ sql: "INSERT INTO employee_accounts (username, password) VALUES (?, ?)", args: [username.toLowerCase(), hashed] })
     const token = jwt.sign({ username: username.toLowerCase(), role: "employee" }, JWT_SECRET, { expiresIn: "7d" })
-    res.json({ token, username })
+   res.json({ token, username: username.toLowerCase() })
   } catch (err) {
     if (err.message?.includes("UNIQUE")) return res.status(409).json({ error: "Username already exists" })
     res.status(500).json({ error: err.message })

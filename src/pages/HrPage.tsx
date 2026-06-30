@@ -1,17 +1,15 @@
 import { useState } from "react"
-import { MessageSquare, Activity, ClipboardList, ChevronDown } from "lucide-react"
+import { MessageSquare, ChevronDown } from "lucide-react"
 import { HrLayout } from "@/layouts/HrLayout"
 import { StatusCard } from "@/components/hr/StatusCard"
 import { RiskCard } from "@/components/hr/RiskCard"
-import { RootCauseCard } from "@/components/hr/RootCauseCard"
 import { SignalBreakdown } from "@/components/hr/SignalBreakdown"
-import { SummaryCard } from "@/components/hr/SummaryCard"
-import { SystemStatusCard } from "@/components/hr/SystemStatusCard"
 import { AnalysisCard } from "@/components/hr/AnalysisCard"
 import { FerDashboardCard } from "@/components/hr/FerDashboardCard"
 import { VoiceDashboardCard } from "@/components/hr/VoiceDashboardCard"
 import { EmployeesSection } from "@/pages/EmployeesSection"
 import { useFer, loadEmployeeAnalysis, type EmployeeAnalysisData } from "@/lib/FerContext"
+import { deriveRisk } from "@/lib/riskDerivation"
 import { Settings, Shield, Bell, Monitor, Trash2 } from "lucide-react"
 import { useEmployees, calcTenure } from "@/lib/useEmployees"
 
@@ -39,6 +37,8 @@ function OverviewSection() {
   const voiceResult = (selectedId && empAnalysis?.voiceResult) ? empAnalysis.voiceResult : null
   const faceHistory = (selectedId && empAnalysis?.faceHistory) ? empAnalysis.faceHistory : []
   const voiceHistory = (selectedId && empAnalysis?.voiceHistory) ? empAnalysis.voiceHistory : []
+
+  const derived = selected ? deriveRisk(chatAnalysis, faceResult, voiceResult) : null
 
   const sentimentColor =
     chatAnalysis?.sentiment === "positive" ? "text-green-600"
@@ -92,17 +92,13 @@ function OverviewSection() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatusCard title="Employee Status" />
-        <StatusCard title="Psychological Status" />
-        <RiskCard />
-        <SystemStatusCard />
-      </div>
-
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <RootCauseCard />
-        <SignalBreakdown />
-        <SummaryCard title="Behavioral Summary" description="Narrative overview of recent signals" icon={ClipboardList} />
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <StatusCard
+          title="Employee Status"
+          status={selected ? { label: selected.name, description: `${selected.role} · ${selected.department}` } : undefined}
+        />
+        <StatusCard title="Psychological Status" status={derived?.psychStatus} />
+        <RiskCard risk={derived?.risk} />
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -126,7 +122,7 @@ function OverviewSection() {
 
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
         <FerDashboardCard overrideResult={faceResult} overrideHistory={faceHistory} />
-        <SummaryCard title="Monitoring Summary" description="Current monitoring coverage and cadence" icon={Activity} />
+        <SignalBreakdown signals={derived?.signalBreakdown} />
       </div>
     </>
   )

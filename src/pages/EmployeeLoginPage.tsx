@@ -58,6 +58,34 @@ export function EmployeeLoginPage() {
       if (!res.ok) { setError(data.error || "Sign up failed."); setLoading(false); return }
       localStorage.setItem("devguard_employee_token", data.token)
       localStorage.setItem("devguard_employee_user", data.username)
+
+      // Auto-add to HR employee list — with proper error handling so failures are never silent
+      try {
+        const empRes = await fetch("/api/employees", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: crypto.randomUUID(),
+            employeeId: form.username.toLowerCase(),
+            name: form.username,
+            role: form.role || "Employee",
+            department: "—",
+            email: "",
+            joinDate: form.joinDate || new Date().toISOString().split("T")[0],
+            username: form.username.toLowerCase(),
+          })
+        })
+        if (!empRes.ok) {
+          const empData = await empRes.json().catch(() => ({}))
+          // 409 just means an employee row already exists for this id — not a real failure
+          if (empRes.status !== 409) {
+            console.error("Failed to add employee to HR list:", empData.error || empRes.statusText)
+          }
+        }
+      } catch (empErr) {
+        console.error("Network error adding employee to HR list:", empErr)
+      }
+
       navigate("/employee")
     } catch { setError("Cannot connect to server. Please try again."); setLoading(false) }
   }
